@@ -1,0 +1,9 @@
+title: "SOAiACORE"
+description: "Sistema Meta-Cognitivo Neuro-Simbólico · Arquitectura Emocional y Reflexiva"
+theme: minima
+markdown: kramdown
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+baseurl: ""
+url: "https://ozesnoso0903-cyber.github.io/ozesnoso0903-cibernético"
