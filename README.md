@@ -59,3 +59,8 @@ flowchart TD
 systemctl status --no-pager --full faltante.service
 curl http://127.0.0.1:8090/ || true
 curl http://127.0.0.1:8090/healthz || true
+Si el puerto 8090 está ocupado:
+
+```bash
+sudo kill -9 $(sudo ss -ltpn | awk '/:8090/ {match($0,/pid=([0-9]+)/,m); print m[1]}')
+sudo systemctl restart faltante.service
