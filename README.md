@@ -49,3 +49,13 @@ flowchart TD
   D --> E[Decision Core]
   E --> F[Expression / Output]
   F --> A[Feedback Loop]
+
+### Cierre de servicio systemd (faltante)
+
+- Servicio instalado en `/etc/systemd/system/faltante.service`.
+- Validar:
+
+```bash
+systemctl status --no-pager --full faltante.service
+curl http://127.0.0.1:8090/ || true
+curl http://127.0.0.1:8090/healthz || true
