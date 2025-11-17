@@ -1,8 +1,8 @@
 {
   "proyecto": "SOAiACORE-AUTOMATOR",
   "descripcion": "Pipeline de sincronización SOAiACORE ↔ GitHub Pages",
-  "ultimo_update": "2025-11-17T09:27:40-06:00",
-  "hash_docs": "5d1c0cca0026e6f24c58a615eaea3825d1c00f4fde6e4d86e085387be57d75ab",
+  "ultimo_update": "2025-11-17T09:28:02-06:00",
+  "hash_docs": "684c686c749c1204dd7dd776938495ee5cbde98a31976290f86a3609cd6ab066",
   "fases": [
     {
       "nombre": "1. Integración Core + API GitHub",
