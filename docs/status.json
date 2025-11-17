@@ -1,0 +1,38 @@
+{
+  "proyecto": "SOAiACORE-AUTOMATOR",
+  "descripcion": "Pipeline de sincronización SOAiACORE ↔ GitHub Pages",
+  "ultimo_update": "2025-11-17T09:27:40-06:00",
+  "hash_docs": "5d1c0cca0026e6f24c58a615eaea3825d1c00f4fde6e4d86e085387be57d75ab",
+  "fases": [
+    {
+      "nombre": "1. Integración Core + API GitHub",
+      "estado": "completado",
+      "responsable": "Infraestructura",
+      "porcentaje": 100
+    },
+    {
+      "nombre": "2. Push Inteligente + SHA",
+      "estado": "completado",
+      "responsable": "Infraestructura",
+      "porcentaje": 100
+    },
+    {
+      "nombre": "3. Automatización Cron + Logs",
+      "estado": "completado",
+      "responsable": "Infraestructura",
+      "porcentaje": 100
+    },
+    {
+      "nombre": "4. Dashboard & API Bridge",
+      "estado": "en_progreso",
+      "responsable": "Arquitectura IA",
+      "porcentaje": 55
+    },
+    {
+      "nombre": "5. AutoDeploy + Feedback Loop",
+      "estado": "pendiente",
+      "responsable": "SOA / IA Estratégica",
+      "porcentaje": 10
+    }
+  ]
+}
