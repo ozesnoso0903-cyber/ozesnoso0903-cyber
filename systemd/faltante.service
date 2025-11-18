@@ -1,0 +1,19 @@
+[Unit]
+Description=Fallback faltante HTTP service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart={{EXEC_START}}
+WorkingDirectory={{WORKING_DIR}}
+EnvironmentFile=-{{ENV_FILE}}
+User={{USER}}
+Group={{GROUP}}
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
