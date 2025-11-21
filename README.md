@@ -159,39 +159,83 @@ FALTANTE_VALIDATE_PORT=9000 \
   ./scripts/collect_faltante_evidence.sh
 ```
 
-### 🔔 Notificaciones sin Telegram
+### 🔔 Notificaciones sin Telegram (versiones con código listo para pegar)
 
-Si quieres evitar depender de Telegram, puedes alternar el canal de alertas con opciones ligeras y fáciles de mantener:
+Si quieres sacar del script toda referencia a Telegram y seguir recibiendo alertas con mínima fricción, aquí van recetas listas para usar.
 
-1) **Pushover (push móvil/web)**
-   - Crea un token/app y un `user key` en Pushover.
-   - Exporta las credenciales antes de llamar a tu script de ingestión o valídalas en un archivo de secretos:
+#### 1) Sustituir bloque de Telegram por Pushover
 
-   ```bash
-   export PUSHOVER_TOKEN="xxx"
-   export PUSHOVER_USER="yyy"
-   curl -s --data "token=$PUSHOVER_TOKEN&user=$PUSHOVER_USER&message=FRATMX: ingest completado" https://api.pushover.net/1/messages.json
-   ```
+Sustituye el bloque de notificación de tu `frat_ingest.py` por este fragmento (usa las mismas variables de estado ya calculadas):
 
-2) **Webhook de Slack/Teams/Discord**
-   - Genera un Webhook entrante y guarda la URL en un secreto (ej. `FALTANTE_WEBHOOK_URL`).
-   - Dispara la notificación con `curl` para no introducir dependencias pesadas:
+```python
+PUSHOVER_TOKEN = secrets.get("pushover_token")
+PUSHOVER_USER = secrets.get("pushover_user")
 
-   ```bash
-   curl -s -X POST -H "Content-Type: application/json" \
-     -d '{"text": "FRATMX: ingest completado"}' \
-     "$FALTANTE_WEBHOOK_URL"
-   ```
+if PUSHOVER_TOKEN and PUSHOVER_USER and changes:
+    msg = f"FRATMX: {len(changes)} nuevos assets\n" + "\n".join([c['name'] for c in changes])
+    curl_cmd = [
+        'curl','-s',
+        '--data', f"token={PUSHOVER_TOKEN}",
+        '--data', f"user={PUSHOVER_USER}",
+        '--data', f"message={msg}",
+        'https://api.pushover.net/1/messages.json'
+    ]
+    subprocess.run(curl_cmd, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+```
 
-3) **Correo vía sendmail/postfix local**
-   - Instala `mailutils` o configura `ssmtp` y usa `mail -s` desde el script.
-   - Ejemplo rápido (suponiendo `mail` disponible y `ALERT_EMAIL` definido):
+Añade en `/etc/frat_secrets.json`:
 
-   ```bash
-   echo "FRATMX: ingest completado" | mail -s "FRATMX ingest" "$ALERT_EMAIL"
-   ```
+```json
+{
+  "pushover_token": "aaa",
+  "pushover_user": "bbb"
+}
+```
 
-Para mantener la seguridad, guarda tokens/URLs en un archivo con permisos `600` (o variables de entorno cargadas en el job) y evita registrar el secreto en logs.
+#### 2) Webhook de Slack / Teams / Discord (sin dependencias extra)
+
+Guarda la URL del webhook como `webhook_url` en tus secretos y pega este bloque para enviar el mensaje:
+
+```python
+WEBHOOK_URL = secrets.get("webhook_url")
+
+if WEBHOOK_URL and changes:
+    payload = {"text": "FRATMX: ingest completado", "blocks": [
+        {"type": "section", "text": {"type": "mrkdwn", "text": f"*{len(changes)}* nuevos assets:\n" + "\n".join([c['name'] for c in changes])}}
+    ]}
+    curl_cmd = [
+        'curl','-s','-X','POST','-H','Content-Type: application/json',
+        '-d', json.dumps(payload),
+        WEBHOOK_URL
+    ]
+    subprocess.run(curl_cmd, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+```
+
+Esto funciona en Slack, Teams y Discord porque todos aceptan payloads JSON simples.
+
+#### 3) Correo con `mail` o `ssmtp`
+
+Para entornos sin webhooks, puedes enviar correo sin añadir librerías nuevas. Define `alert_email` en secretos y añade:
+
+```python
+ALERT_EMAIL = secrets.get("alert_email")
+
+if ALERT_EMAIL and changes:
+    msg = "FRATMX: ingest completado\n" + "\n".join([c['name'] for c in changes])
+    subprocess.run(['mail','-s','FRATMX ingest', ALERT_EMAIL],
+                   input=msg.encode(), check=False,
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+```
+
+Requisitos: tener `mailutils`/`ssmtp` configurado y disponible en `PATH`.
+
+#### 4) Qué tocar para desactivar Telegram por completo
+
+1. Elimina las variables `TG_TOKEN` y `TG_CHAT` y el bloque asociado en `frat_ingest.py`.
+2. Borra cualquier entrada de Telegram en `/etc/frat_secrets.json` y deja solo las claves que uses (pushover_token, webhook_url, alert_email, etc.).
+3. Mantén el archivo con permisos `600` y evita imprimir secretos en logs.
+
+Con estas recetas puedes copiar/pegar directamente en el script sin añadir dependencias externas ni cambiar el resto del flujo de ingest.
 
 Con esto podrás adjuntar un solo archivo al reporte y demostrar las
 acciones ejecutadas incluso cuando el entorno carece de `systemd`.
