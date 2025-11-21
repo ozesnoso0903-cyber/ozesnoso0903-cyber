@@ -159,6 +159,40 @@ FALTANTE_VALIDATE_PORT=9000 \
   ./scripts/collect_faltante_evidence.sh
 ```
 
+### 🔔 Notificaciones sin Telegram
+
+Si quieres evitar depender de Telegram, puedes alternar el canal de alertas con opciones ligeras y fáciles de mantener:
+
+1) **Pushover (push móvil/web)**
+   - Crea un token/app y un `user key` en Pushover.
+   - Exporta las credenciales antes de llamar a tu script de ingestión o valídalas en un archivo de secretos:
+
+   ```bash
+   export PUSHOVER_TOKEN="xxx"
+   export PUSHOVER_USER="yyy"
+   curl -s --data "token=$PUSHOVER_TOKEN&user=$PUSHOVER_USER&message=FRATMX: ingest completado" https://api.pushover.net/1/messages.json
+   ```
+
+2) **Webhook de Slack/Teams/Discord**
+   - Genera un Webhook entrante y guarda la URL en un secreto (ej. `FALTANTE_WEBHOOK_URL`).
+   - Dispara la notificación con `curl` para no introducir dependencias pesadas:
+
+   ```bash
+   curl -s -X POST -H "Content-Type: application/json" \
+     -d '{"text": "FRATMX: ingest completado"}' \
+     "$FALTANTE_WEBHOOK_URL"
+   ```
+
+3) **Correo vía sendmail/postfix local**
+   - Instala `mailutils` o configura `ssmtp` y usa `mail -s` desde el script.
+   - Ejemplo rápido (suponiendo `mail` disponible y `ALERT_EMAIL` definido):
+
+   ```bash
+   echo "FRATMX: ingest completado" | mail -s "FRATMX ingest" "$ALERT_EMAIL"
+   ```
+
+Para mantener la seguridad, guarda tokens/URLs en un archivo con permisos `600` (o variables de entorno cargadas en el job) y evita registrar el secreto en logs.
+
 Con esto podrás adjuntar un solo archivo al reporte y demostrar las
 acciones ejecutadas incluso cuando el entorno carece de `systemd`.
 
