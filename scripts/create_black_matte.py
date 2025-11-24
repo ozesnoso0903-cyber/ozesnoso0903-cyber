@@ -12,10 +12,11 @@ import sys
 from pathlib import Path
 
 CURRENT_DIR = Path(__file__).resolve().parent
-if str(CURRENT_DIR) not in sys.path:
-    sys.path.insert(0, str(CURRENT_DIR))
+REPO_ROOT = CURRENT_DIR.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
-from validate_image_creation import (  # noqa: E402
+from scripts.validate_image_creation import (  # noqa: E402
     DEFAULT_COLOR,
     DEFAULT_SIZE,
     create_black_matte,
