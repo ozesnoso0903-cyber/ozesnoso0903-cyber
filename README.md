@@ -217,6 +217,8 @@ Para generar una imagen mate negra de 100×100 píxeles sin errores de escritura
 2. Genera la imagen mate negra (`black_matte.png`).
 3. Reabre el archivo para validar integridad (tamaño, modo y píxeles negros).
 
+La lógica reusable vive en `scripts/validate_image_creation.py` para validar cualquier placeholder que generes.
+
 ```bash
 # Requiere Pillow: pip install pillow
 ./scripts/create_black_matte.py

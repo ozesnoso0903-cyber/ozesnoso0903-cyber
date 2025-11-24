@@ -3,9 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
+pytest.importorskip("PIL")
 from PIL import Image
 
-from scripts.create_black_matte import (
+from scripts.validate_image_creation import (
     create_black_matte,
     prepare_output_path,
     save_image,
