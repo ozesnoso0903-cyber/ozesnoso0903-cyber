@@ -286,3 +286,22 @@ Las pruebas instancian el servidor en un puerto efímero, validan la
 respuesta JSON de `/` y comprueban que `/healthz` devuelva HTTP 200 u
 HTTP 503 según el estado configurado. Esto ayuda a detectar regresiones
 antes de depender del helper en entornos sin `systemd`.
+
+### 🖼️ Ritual de matte negro seguro
+
+Para generar una imagen mate negra de 100×100 píxeles sin errores de escritura:
+
+1. El script crea el directorio de salida si no existe (`output/` por defecto).
+2. Genera la imagen mate negra (`black_matte.png`).
+3. Reabre el archivo para validar integridad (tamaño, modo y píxeles negros).
+
+La lógica reusable vive en `scripts/validate_image_creation.py` para validar cualquier placeholder que generes.
+
+```bash
+# Requiere Pillow: pip install pillow
+./scripts/create_black_matte.py
+# O especifica otra ruta
+./scripts/create_black_matte.py --output-dir artifacts --filename prueba.png
+```
+
+Usa este ritual cuando necesites un placeholder confiable y verificable en entornos con rutas restringidas.
