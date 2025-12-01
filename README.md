@@ -159,6 +159,18 @@ FALTANTE_VALIDATE_PORT=9000 \
   ./scripts/collect_faltante_evidence.sh
 ```
 
+---
+
+## 🪟 Windows: resolver errores de `Install-Module`
+
+Si PowerShell muestra `Could not find a part of the path ...\WindowsPowerShell\Modules\ps2exe\1.0.17`
+al instalar módulos (por ejemplo `ps2exe`), normalmente es porque la ruta de
+`Documentos` está redirigida a OneDrive o tiene un nombre localizado
+(`Documentos`, `Documents`, etc.) y la carpeta no existe aún. Sigue la guía en
+[`docs/powershell-module-path.md`](docs/powershell-module-path.md) para crear la
+carpeta correcta de módulos y actualizar `$env:PSModulePath` antes de volver a
+ejecutar `Install-Module`.
+
 ### 🔔 Notificaciones sin Telegram (versiones con código listo para pegar)
 
 Si quieres sacar del script toda referencia a Telegram y seguir recibiendo alertas con mínima fricción, aquí van recetas listas para usar.
