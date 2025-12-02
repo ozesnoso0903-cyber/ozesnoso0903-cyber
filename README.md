@@ -42,11 +42,32 @@ Su núcleo combina ingeniería cognitiva avanzada, ética computacional y diseñ
 ## 🧠 Cognitive Flow Diagram
 
 ```mermaid
+
 graph TD
     %% --- ESTILOS VISUALES (Theme Premium) ---
     classDef base fill:#fff,stroke:#333,stroke-width:1px,color:#333;
-    ... (todo el código que te pasé) ...
-    Config -.->|Read| Orch
+    classDef gateway fill:#2b2d42,stroke:#2b2d42,stroke-width:2px,color:#fff,rx:5,ry:5;
+    classDef logic fill:#edf2f4,stroke:#8d99ae,stroke-width:2px,color:#2b2d42,rx:5,ry:5;
+    classDef ai fill:#fff1e6,stroke:#e09f3e,stroke-width:2px,color:#bc6c25,rx:5,ry:5;
+    classDef control fill:#f0efeb,stroke:#d62828,stroke-width:2px,stroke-dasharray: 5 5,color:#d62828;
+    classDef dash fill:#e0fbfc,stroke:#3d5a80,stroke-width:2px,color:#293241,rx:10,ry:10;
+
+    %% --- DIAGRAMA ---
+    subgraph "Client Layer"
+        Dash[Dashboard 2025<br/>refresh 5s]:::dash
+    end
+
+    subgraph "Secure Perimeter"
+        Nginx[NGINX Gateway]:::gateway
+    end
+
+    subgraph "Internal Processing"
+        Webhook[Micro Webhook<br/>soa-micro]:::logic
+        Orch[Orchestrator<br/>Cognitive Core]:::logic
+    end
+
+    subgraph "Intelligence Tiers"
+
 ```
 
 ### Cierre de servicio systemd (faltante)
