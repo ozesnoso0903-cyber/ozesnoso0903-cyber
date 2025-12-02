@@ -42,13 +42,12 @@ Su núcleo combina ingeniería cognitiva avanzada, ética computacional y diseñ
 ## 🧠 Cognitive Flow Diagram
 
 ```mermaid
-flowchart TD
-  A[Stimulus Input] --> B[Cognitive Parsing]
-  B --> C[Emotional Encoding]
-  C --> D[Symbolic Integration]
-  D --> E[Decision Core]
-  E --> F[Expression / Output]
-  F --> A[Feedback Loop]
+graph TD
+    %% --- ESTILOS VISUALES (Theme Premium) ---
+    classDef base fill:#fff,stroke:#333,stroke-width:1px,color:#333;
+    ... (todo el código que te pasé) ...
+    Config -.->|Read| Orch
+```
 
 ### Cierre de servicio systemd (faltante)
 
