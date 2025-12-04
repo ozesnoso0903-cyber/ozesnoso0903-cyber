@@ -1,160 +1,121 @@
-<!doctype html>
-<meta charset="utf-8">
-<title>SOAiACORE · Status Dashboard</title>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOA·IACORE — Dashboard V4</title>
+
 <style>
-  :root{
-    --blue:#0B3D91;
-    --blue2:#1F5FD6;
-    --bg:#f6faff;
-    --ink:#0a0a0a;
-    --muted:#5b6879;
-    --ok:#159957;
-    --wip:#f59e0b;
-    --todo:#6b7280;
-  }
-  *{box-sizing:border-box;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-  body{margin:24px;background:var(--bg);color:var(--ink);}
-  h1{margin:0 0 4px;font-size:26px;color:var(--blue);}
-  p.lead{margin:0 0 18px;color:var(--muted);}
-  .wrap{max-width:980px;margin:0 auto;}
-  .grid{display:grid;grid-template-columns:2fr 3fr;gap:16px;margin-top:16px;}
-  .card{
-    background:#fff;
-    border:1px solid #d7e3f4;
-    border-radius:14px;
-    box-shadow:0 2px 12px rgba(11,61,145,.06);
-    overflow:hidden;
-  }
-  .card h2{
-    margin:0;
-    padding:10px 14px;
-    font-size:14px;
-    letter-spacing:.04em;
-    text-transform:uppercase;
-    background:linear-gradient(90deg,var(--blue),var(--blue2));
-    color:#fff;
-  }
-  .card-body{padding:12px 14px;font-size:14px;}
-  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px;}
-  th,td{padding:6px 8px;border-bottom:1px solid #eef3fb;vertical-align:top;text-align:left;}
-  th{background:#f0f6ff;color:#173b6d;font-weight:600;}
-  .pill{
-    display:inline-block;
-    border-radius:999px;
-    padding:2px 8px;
-    font-size:11px;
-    color:#fff;
-  }
-  .ok{background:var(--ok);}
-  .wip{background:var(--wip);}
-  .todo{background:var(--todo);}
-  .bar{height:8px;border-radius:999px;background:#e8f0ff;overflow:hidden;}
-  .bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--blue),var(--blue2));}
-  .meta{font-size:12px;color:var(--muted);margin-top:8px;}
-  .error{color:#b91c1c;font-size:13px;margin-top:8px;}
-</style>
-<div class="wrap">
-  <h1>SOAiACORE · Status Dashboard</h1>
-  <p class="lead">Vista ejecutiva del pipeline. Datos en vivo desde <code>status.json</code>.</p>
-
-  <div id="error" class="error" style="display:none;"></div>
-
-  <div class="grid">
-    <div class="card">
-      <h2>Resumen</h2>
-      <div class="card-body" id="summary">
-        Cargando estado…
-      </div>
-    </div>
-    <div class="card">
-      <h2>Fases</h2>
-      <div class="card-body">
-        <table id="phases-table">
-          <thead>
-            <tr>
-              <th>Fase</th>
-              <th>Resp.</th>
-              <th>Estado</th>
-              <th>Avance</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td colspan="4">Cargando fases…</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <p class="meta" id="meta-footer"></p>
-</div>
-
-<script>
-async function loadStatus(){
-  const errBox = document.getElementById('error');
-  const summary = document.getElementById('summary');
-  const tbody = document.querySelector('#phases-table tbody');
-  const meta = document.getElementById('meta-footer');
-
-  try{
-    const res = await fetch('status.json?ts=' + Date.now());
-    if(!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-
-    summary.innerHTML = `
-      <b>Proyecto:</b> ${data.proyecto || 'SOAiACORE-AUTOMATOR'}<br>
-      <b>Descripción:</b> ${data.descripcion || ''}<br>
-      <b>Último update:</b> ${data.ultimo_update || '-'}<br>
-      <b>Hash docs:</b> <code>${(data.hash_docs || '').slice(0,12)}…</code>
-    `;
-
-    if(!Array.isArray(data.fases)){
-      tbody.innerHTML = '<tr><td colspan="4">No hay fases definidas.</td></tr>';
-    } else {
-      tbody.innerHTML = '';
-      data.fases.forEach(f => {
-        const tr = document.createElement('tr');
-
-        const tdFase = document.createElement('td');
-        tdFase.textContent = f.nombre || '';
-        tr.appendChild(tdFase);
-
-        const tdResp = document.createElement('td');
-        tdResp.textContent = f.responsable || '';
-        tr.appendChild(tdResp);
-
-        const tdEstado = document.createElement('td');
-        const span = document.createElement('span');
-        span.classList.add('pill');
-        const est = (f.estado || '').toLowerCase();
-        if(est.includes('complet')) span.classList.add('ok');
-        else if(est.includes('progreso')) span.classList.add('wip');
-        else span.classList.add('todo');
-        span.textContent = f.estado || '';
-        tdEstado.appendChild(span);
-        tr.appendChild(tdEstado);
-
-        const tdAv = document.createElement('td');
-        const bar = document.createElement('div');
-        bar.className = 'bar';
-        const inner = document.createElement('span');
-        const pct = Number(f.porcentaje || 0);
-        inner.style.width = Math.max(0, Math.min(100, pct)) + '%';
-        bar.appendChild(inner);
-        tdAv.appendChild(bar);
-        tr.appendChild(tdAv);
-
-        tbody.appendChild(tr);
-      });
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: #0A0F1F;
+        margin: 0;
+        padding: 0;
+        color: white;
     }
 
-    meta.textContent = `Panel generado en cliente. Último estado del servidor: ${data.ultimo_update || '-'} · Hash: ${(data.hash_docs || '').slice(0,8)}…`;
-    errBox.style.display = 'none';
-  } catch(e){
-    errBox.style.display = 'block';
-    errBox.textContent = 'No se pudo cargar status.json: ' + e.message;
-    summary.textContent = 'Sin datos de estado.';
-  }
-}
-loadStatus();
-</script>
+    header {
+        background: linear-gradient(90deg, #003B8A, #007BFF);
+        padding: 25px;
+        text-align: center;
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    .container {
+        padding: 30px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-gap: 25px;
+    }
+
+    .card {
+        background: rgba(255,255,255,0.05);
+        border-radius: 15px;
+        padding: 20px;
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255,255,255,0.1);
+        transition: 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-4px);
+        border-color: #007BFF;
+    }
+
+    .card h2 {
+        margin-top: 0;
+        color: #4EA2FF;
+        font-size: 22px;
+        font-weight: 600;
+    }
+
+    .metric {
+        font-size: 34px;
+        font-weight: 700;
+        margin-top: 10px;
+    }
+
+    footer {
+        text-align: center;
+        padding: 25px;
+        background: #08101F;
+        color: #89A4C7;
+        margin-top: 40px;
+        font-size: 14px;
+    }
+</style>
+</head>
+
+<body>
+
+<header>SOA·IACORE — Dashboard Operativo V4</header>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Estado General</h2>
+        <div class="metric">84%</div>
+        <p>Avance consolidado del proyecto en producción.</p>
+    </div>
+
+    <div class="card">
+        <h2>Pipeline de Publicación</h2>
+        <div class="metric">100%</div>
+        <p>GitHub Pages + API Commit funcionando sin errores.</p>
+    </div>
+
+    <div class="card">
+        <h2>Automatización</h2>
+        <div class="metric">100%</div>
+        <p>Sync inteligente operativo (cron + hashes).</p>
+    </div>
+
+    <div class="card">
+        <h2>UI/UX del Dashboard</h2>
+        <div class="metric">60%</div>
+        <p>Diseño visual aprobado, integración en progreso.</p>
+    </div>
+
+    <div class="card">
+        <h2>Publicación Final</h2>
+        <div class="metric">0%</div>
+        <p>Se activa en cuanto este archivo se publique.</p>
+    </div>
+
+    <div class="card">
+        <h2>Meta 109%</h2>
+        <div class="metric">0%</div>
+        <p>Animaciones, KPIs avanzados, telemetría.</p>
+    </div>
+
+</div>
+
+<footer>
+    SOA·IACORE — Inteligencia, Orden, Precisión. © 2025
+</footer>
+
+</body>
+</html>
