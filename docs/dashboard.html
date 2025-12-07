@@ -2,79 +2,110 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>SOA·IACORE — Dashboard Operativo</title>
+  <title>SOA·IACORE · Dashboard Operativo V5</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="refresh" content="30">
 
   <style>
-    body {
-      margin:0;
-      background:#08101F;
-      color:#E6EEFF;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto;
+    :root{
+      --bg:#08101F;
+      --panel:#0E1A2F;
+      --accent:#4EA2FF;
+      --ok:#2ecc71;
+      --muted:#89A4C7;
+      --border:rgba(255,255,255,.08);
     }
-    header {
-      padding:24px;
+    *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto;}
+    body{margin:0;background:var(--bg);color:#EAF0FF}
+    header{
+      padding:22px;
       text-align:center;
-      font-size:24px;
-      background:#0B3D91;
+      font-size:22px;
       letter-spacing:1px;
+      background:#0B3D91;
     }
-    .grid {
+    .grid{
       padding:30px;
       display:grid;
       grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
       gap:24px;
     }
-    .card {
-      background:rgba(255,255,255,.06);
-      padding:20px;
+    .card{
+      background:var(--panel);
+      border:1px solid var(--border);
       border-radius:14px;
-      border:1px solid rgba(255,255,255,.1);
+      padding:22px;
     }
-    .metric {
-      font-size:40px;
+    .metric{
+      font-size:42px;
       font-weight:700;
-      margin:10px 0;
-      color:#2ecc71;
+      color:var(--ok);
+      margin:8px 0;
     }
-    p { color:#89A4C7; }
+    .label{
+      font-size:14px;
+      color:var(--muted);
+    }
+    footer{
+      text-align:center;
+      padding:18px;
+      font-size:13px;
+      color:var(--muted);
+      border-top:1px solid var(--border);
+      margin-top:20px;
+    }
   </style>
 </head>
 
 <body>
 
-<header>SOA·IACORE — Dashboard Operativo</header>
+<header>SOA·IACORE — Dashboard Operativo V5</header>
 
-<div class="grid">
+<section class="grid">
   <div class="card">
-    <h3>Estado General</h3>
+    <div class="label">Estado general del proyecto</div>
     <div class="metric" id="estado">—</div>
-    <p>Avance real del proyecto</p>
   </div>
 
   <div class="card">
-    <h3>Pipeline</h3>
+    <div class="label">Pipeline GitHub / Pages</div>
     <div class="metric" id="pipeline">—</div>
-    <p>GitHub Pages + API</p>
   </div>
 
   <div class="card">
-    <h3>Automatización</h3>
-    <div class="metric" id="auto">—</div>
-    <p>Cron + Sync inteligente</p>
+    <div class="label">Automatización & Cron</div>
+    <div class="metric" id="automatizacion">—</div>
   </div>
-</div>
+
+  <div class="card">
+    <div class="label">Dashboard & Visual</div>
+    <div class="metric" id="dashboard">—</div>
+  </div>
+</section>
+
+<footer>
+  SOA·IACORE · Sistema vivo · Auto-refresh 30s
+</footer>
 
 <script>
-fetch('status.json',{cache:'no-store'})
-.then(r=>r.json())
-.then(d=>{
-  const avg=Math.round(
-    d.fases.reduce((a,f)=>a+f.porcentaje,0)/d.fases.length
-  );
-  estado.textContent=avg+'%';
-  pipeline.textContent='100%';
-  auto.textContent='100%';
+fetch('status.json', { cache: 'no-store' })
+.then(r => r.json())
+.then(data => {
+  const fases = data.fases || [];
+  const total = fases.reduce((a,f)=>a + (f.porcentaje||0),0);
+  const avg = Math.round(total / fases.length);
+
+  document.getElementById('estado').textContent = avg + '%';
+  document.getElementById('pipeline').textContent = '100%';
+  document.getElementById('automatizacion').textContent = '100%';
+
+  const dash = fases.find(f => f.nombre.includes('Dashboard'));
+  document.getElementById('dashboard').textContent =
+    dash ? dash.porcentaje + '%' : '—';
+})
+.catch(e=>{
+  document.getElementById('estado').textContent='ERR';
+  console.error(e);
 });
 </script>
 
