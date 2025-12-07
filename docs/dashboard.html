@@ -1,324 +1,175 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <title>SOA·IACORE — Panel Ejecutivo V11</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Auto-refresh cada 60s -->
-  <meta http-equiv="refresh" content="60">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SOA·IACORE — Executive Dashboard</title>
 
-  <style>
-    :root{
-      --bg:#050816;
-      --panel:#0b1220;
-      --panel-soft:#0f172a;
-      --accent:#4f46e5;
-      --accent-soft:#818cf8;
-      --ok:#22c55e;
-      --warn:#eab308;
-      --risk:#f97316;
-      --ink:#e5e7eb;
-      --muted:#9ca3af;
-      --border:rgba(148,163,184,.35);
-    }
-    *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto}
-    body{margin:0;background:radial-gradient(circle at top,#1d2542 0,#050816 45%,#020617 100%);color:var(--ink);}
-    header{
-      padding:18px 26px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      border-bottom:1px solid var(--border);
-      backdrop-filter:blur(12px);
-      background:linear-gradient(90deg,rgba(15,23,42,.95),rgba(30,64,175,.9));
-    }
-    header h1{margin:0;font-size:20px;letter-spacing:.08em;text-transform:uppercase;}
-    header span.tag{
-      font-size:12px;
-      padding:4px 10px;
-      border-radius:999px;
-      border:1px solid rgba(148,163,184,.6);
-      color:var(--muted);
-    }
-    main{max-width:1100px;margin:0 auto;padding:22px 16px 32px;}
+<style>
+:root{
+  --bg:#070b16;
+  --panel:#0e1628;
+  --panel-soft:#121c33;
+  --ink:#e7ecf5;
+  --muted:#9fb0d0;
+  --blue:#3b82f6;
+  --green:#22c55e;
+  --yellow:#facc15;
+  --red:#ef4444;
+}
 
-    .layout{
-      display:grid;
-      grid-template-columns: minmax(0,2.1fr) minmax(0,1.4fr);
-      gap:18px;
-    }
-    @media (max-width: 900px){
-      .layout{grid-template-columns:1fr;}
-    }
+*{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto;}
 
-    .card{
-      background:linear-gradient(135deg,rgba(15,23,42,.96),rgba(15,23,42,.92));
-      border-radius:16px;
-      border:1px solid var(--border);
-      padding:18px 18px 16px;
-      box-shadow:0 18px 45px rgba(0,0,0,.7);
-    }
-    .card h2{
-      margin:0 0 10px;
-      font-size:15px;
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      color:var(--muted);
-    }
+body{
+  margin:0;
+  background:radial-gradient(1200px 600px at 10% -10%,#14204a,#070b16 60%);
+  color:var(--ink);
+}
 
-    .kpi-row{
-      display:flex;
-      align-items:flex-end;
-      gap:18px;
-      margin-bottom:8px;
-    }
-    .kpi-main{
-      font-size:40px;
-      font-weight:700;
-    }
-    .kpi-chip{
-      font-size:12px;
-      padding:3px 9px;
-      border-radius:999px;
-      border:1px solid rgba(148,163,184,.6);
-      color:var(--muted);
-    }
-    .kpi-label{
-      font-size:13px;
-      color:var(--muted);
-    }
+header{
+  padding:28px 40px;
+  background:linear-gradient(90deg,#1e40af,#2563eb);
+  font-size:28px;
+  font-weight:700;
+  letter-spacing:.5px;
+}
 
-    .status-ok{color:var(--ok);}
-    .status-warn{color:var(--warn);}
-    .status-risk{color:var(--risk);}
+.wrapper{
+  max-width:1200px;
+  margin:32px auto;
+  padding:0 24px;
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:28px;
+}
 
-    .bar{
-      margin-top:12px;
-      height:10px;
-      border-radius:999px;
-      background:rgba(15,23,42,1);
-      overflow:hidden;
-      border:1px solid rgba(55,65,81,.9);
-    }
-    .bar span{
-      display:block;
-      height:100%;
-      width:0%;
-      background:linear-gradient(90deg,var(--accent),var(--ok));
-      transition:width .6s ease-out;
-    }
+.card{
+  background:linear-gradient(180deg,var(--panel),var(--panel-soft));
+  border-radius:18px;
+  padding:28px;
+  box-shadow:0 20px 40px rgba(0,0,0,.45);
+}
 
-    .summary-block p{
-      margin:4px 0;
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.5;
-    }
-    .summary-block p strong{color:var(--ink);}
+h2{
+  margin:0 0 12px;
+  font-size:20px;
+  color:#93c5fd;
+}
 
-    .pill-row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:6px;
-      margin-top:10px;
-    }
-    .pill{
-      font-size:11px;
-      padding:3px 8px;
-      border-radius:999px;
-      border:1px solid rgba(148,163,184,.5);
-      color:var(--muted);
-      background:rgba(15,23,42,.9);
-    }
+.metric{
+  font-size:52px;
+  font-weight:800;
+  margin:10px 0;
+}
 
-    .timeline{
-      margin-top:6px;
-      font-size:13px;
-    }
-    .timeline-item{
-      display:flex;
-      justify-content:space-between;
-      padding:4px 0;
-      border-bottom:1px dashed rgba(75,85,99,.7);
-    }
-    .timeline-item:last-child{border-bottom:none;}
-    .timeline-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .timeline-badge{
-      font-size:11px;
-      padding:2px 7px;
-      border-radius:999px;
-      border:1px solid rgba(148,163,184,.6);
-    }
+.sub{
+  color:var(--muted);
+  font-size:15px;
+}
 
-    .meta{
-      margin-top:8px;
-      font-size:12px;
-      color:var(--muted);
-      display:flex;
-      justify-content:space-between;
-      gap:8px;
-      flex-wrap:wrap;
-    }
+.progress{
+  margin-top:14px;
+  height:10px;
+  border-radius:6px;
+  background:#0b1225;
+  overflow:hidden;
+}
+.progress > div{
+  height:100%;
+  background:linear-gradient(90deg,var(--blue),#22d3ee);
+}
 
-    footer{
-      text-align:center;
-      font-size:12px;
-      color:var(--muted);
-      padding:10px 0 4px;
-    }
-  </style>
+.badge{
+  display:inline-block;
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:600;
+  margin-top:10px;
+}
+
+.ok{background:rgba(34,197,94,.15);color:var(--green);}
+.wip{background:rgba(250,204,21,.15);color:var(--yellow);}
+.todo{background:rgba(239,68,68,.15);color:var(--red);}
+
+.list{
+  display:grid;
+  gap:14px;
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding-bottom:10px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+footer{
+  text-align:center;
+  color:#7c8db5;
+  font-size:13px;
+  padding:40px 0 24px;
+}
+</style>
 </head>
 
 <body>
+<header>SOA·IACORE — Dashboard Operativo</header>
 
-<header>
-  <h1>SOA·IACORE · Panel Ejecutivo</h1>
-  <span class="tag" id="exec-tag">Cargando estado…</span>
-</header>
+<div class="wrapper">
 
-<main>
-  <div class="layout">
-    <!-- Bloque ejecutivo principal -->
-    <section class="card">
-      <h2>Resumen ejecutivo</h2>
+  <!-- COLUMNA IZQUIERDA -->
+  <div class="card">
+    <h2>Resumen Ejecutivo</h2>
+    <div id="estado" class="metric">—%</div>
+    <div class="sub" id="estado-desc">Cargando estado operativo…</div>
 
-      <div class="kpi-row">
-        <div>
-          <div class="kpi-main status-ok" id="kpi-avg">--%</div>
-          <div class="kpi-label" id="kpi-label">Estado general del proyecto</div>
-        </div>
-        <div class="kpi-chip" id="kpi-risk">Riesgo: —</div>
-      </div>
-
-      <div class="bar">
-        <span id="bar-fill"></span>
-      </div>
-
-      <div class="summary-block" id="summary-text">
-        <p>Cargando lectura ejecutiva…</p>
-      </div>
-
-      <div class="pill-row" id="pill-row">
-        <!-- Pills de fases se insertan aquí -->
-      </div>
-    </section>
-
-    <!-- Bloque técnico resumido -->
-    <section class="card">
-      <h2>Detalle técnico condensado</h2>
-
-      <div class="timeline" id="timeline">
-        Cargando fases…
-      </div>
-
-      <div class="meta">
-        <span id="meta-update">Última actualización: —</span>
-        <span id="meta-progress">Completadas: — · En curso: —</span>
-      </div>
-    </section>
+    <div class="progress"><div id="estado-bar" style="width:0%"></div></div>
+    <div id="riesgo" class="badge wip">Evaluando riesgo</div>
   </div>
-</main>
+
+  <!-- COLUMNA DERECHA -->
+  <div class="card">
+    <h2>Detalle Técnico</h2>
+    <div class="list" id="fases"></div>
+  </div>
+
+</div>
 
 <footer>
-  SOA·IACORE · V11 — Vista ejecutiva con auto-refresh (60s) · Fuente: status.json
+SOA·IACORE — Inteligencia · Orden · Precisión © 2025
 </footer>
 
 <script>
-function classifyRisk(avg, stalledCount){
-  if (avg >= 90 && stalledCount === 0) return {level:'Bajo', class:'status-ok', tag:'EN CONTROL'};
-  if (avg >= 75) return {level:'Medio', class:'status-warn', tag:'EN ATENCIÓN'};
-  return {level:'Alto', class:'status-risk', tag:'RIESGO / SEGUIMIENTO DIARIO'};
-}
+fetch('status.json',{cache:'no-store'})
+.then(r=>r.json())
+.then(data=>{
+  const fases=data.fases;
+  const total=fases.reduce((a,f)=>a+f.porcentaje,0);
+  const avg=Math.round(total/fases.length);
 
-fetch('status.json', { cache: 'no-store' })
-  .then(r => r.json())
-  .then(data => {
-    const fases = data.fases || [];
-    if (!fases.length) return;
+  document.getElementById('estado').innerText=avg+'%';
+  document.getElementById('estado-desc').innerText=
+    `Avance real del proyecto con ${fases.filter(f=>f.porcentaje===100).length} fases completas.`;
 
-    const total = fases.reduce((a,f)=>a + (f.porcentaje || 0), 0);
-    const avg = Math.round(total / fases.length);
+  document.getElementById('estado-bar').style.width=avg+'%';
 
-    const completas = fases.filter(f => f.porcentaje === 100);
-    const enCurso = fases.filter(f => f.porcentaje > 0 && f.porcentaje < 100);
-    const pendientes = fases.filter(f => !f.porcentaje || f.porcentaje === 0);
+  const riesgo=document.getElementById('riesgo');
+  riesgo.innerText=avg<80?'Riesgo: Alto':avg<95?'Riesgo: Medio':'Riesgo: Bajo';
+  riesgo.className='badge '+(avg<80?'todo':avg<95?'wip':'ok');
 
-    const stalled = enCurso.filter(f => (f.estado || '').toLowerCase().includes('detenido')).length;
-
-    // Riesgo
-    const risk = classifyRisk(avg, stalled);
-    const kpiAvg = document.getElementById('kpi-avg');
-    const kpiRisk = document.getElementById('kpi-risk');
-    const kpiLabel = document.getElementById('kpi-label');
-    const barFill = document.getElementById('bar-fill');
-    const execTag = document.getElementById('exec-tag');
-
-    kpiAvg.textContent = avg + '%';
-    kpiAvg.classList.add(risk.class);
-    kpiRisk.textContent = 'Riesgo: ' + risk.level;
-    kpiRisk.classList.add(risk.class);
-    execTag.textContent = risk.tag;
-    execTag.classList.add(risk.class);
-    barFill.style.width = avg + '%';
-
-    // Resumen ejecutivo
-    const summary = document.getElementById('summary-text');
-    const faseClave = enCurso[0] || pendientes[0] || completas[completas.length-1];
-
-    summary.innerHTML = `
-      <p><strong>Estado global:</strong> el proyecto se encuentra en <strong>${avg}%</strong> de avance real, con <strong>${completas.length}</strong> fase(s) completada(s) y <strong>${enCurso.length}</strong> en curso.</p>
-      <p><strong>Riesgo operativo:</strong> nivel <strong>${risk.level}</strong>, ${
-        risk.level === 'Bajo'
-          ? 'la ejecución está alineada y bajo control.'
-          : risk.level === 'Medio'
-              ? 'se requiere seguimiento cercano en las fases activas.'
-              : 'es imprescindible revisión diaria de bloqueos y dependencias.'
-      }</p>
-      ${
-        faseClave
-          ? `<p><strong>Próximo foco:</strong> fase <strong>“${faseClave.nombre}”</strong> (${faseClave.porcentaje || 0}%). Es la siguiente palanca directa para subir el indicador global.</p>`
-          : ''
-      }
+  const cont=document.getElementById('fases');
+  fases.forEach(f=>{
+    const row=document.createElement('div');
+    row.className='row';
+    row.innerHTML=`
+      <div>${f.nombre}</div>
+      <div><strong>${f.porcentaje}%</strong></div>
     `;
-
-    // Pills
-    const pillRow = document.getElementById('pill-row');
-    pillRow.innerHTML = '';
-    fases.forEach(f => {
-      const pill = document.createElement('span');
-      pill.className = 'pill';
-      pill.textContent = `${f.nombre} · ${f.porcentaje || 0}%`;
-      pillRow.appendChild(pill);
-    });
-
-    // Timeline
-    const timeline = document.getElementById('timeline');
-    timeline.innerHTML = '';
-    fases.forEach(f => {
-      const item = document.createElement('div');
-      item.className = 'timeline-item';
-      const badgeClass =
-        f.porcentaje === 100 ? 'status-ok' :
-        f.porcentaje > 0 ? 'status-warn' : 'status-risk';
-      item.innerHTML = `
-        <span class="timeline-name">${f.nombre}</span>
-        <span class="timeline-badge ${badgeClass}">${f.porcentaje || 0}%</span>
-      `;
-      timeline.appendChild(item);
-    });
-
-    // Meta
-    document.getElementById('meta-update').textContent =
-      'Última actualización: ' + (data.ultimo_update || '—');
-    document.getElementById('meta-progress').textContent =
-      'Completadas: ' + completas.length +
-      ' · En curso: ' + enCurso.length +
-      (pendientes.length ? ' · Pendientes: ' + pendientes.length : '');
-  })
-  .catch(err => {
-    console.error('Error leyendo status.json', err);
-    document.getElementById('exec-tag').textContent = 'SIN DATOS · Revisar status.json';
+    cont.appendChild(row);
   });
+});
 </script>
 
 </body>
