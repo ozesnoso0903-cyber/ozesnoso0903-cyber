@@ -1,172 +1,82 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SOA·IACORE — Dashboard Operativo V4</title>
-
-  <!-- Auto-refresh opcional cada 60s -->
-  <meta http-equiv="refresh" content="60">
+  <meta charset="UTF-8">
+  <title>SOA·IACORE — Dashboard Operativo</title>
+  <meta http-equiv="refresh" content="30">
 
   <style>
-    :root {
-      --bg: #0A0F1F;
-      --card: rgba(255,255,255,0.06);
-      --blue: #4EA2FF;
-      --blue2: #007BFF;
-      --ink: #ffffff;
-      --muted: #9AA4C7;
-    }
-
-    * {
-      box-sizing: border-box;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    }
-
     body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--ink);
+      margin:0;
+      background:#08101F;
+      color:#E6EEFF;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto;
     }
-
     header {
-      background: linear-gradient(90deg, #003B8A, #007BFF);
-      padding: 26px;
-      text-align: center;
-      font-size: 30px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      box-shadow: 0 6px 25px rgba(0,0,0,0.45);
+      padding:24px;
+      text-align:center;
+      font-size:24px;
+      background:#0B3D91;
+      letter-spacing:1px;
     }
-
-    .container {
-      max-width: 1100px;
-      margin: auto;
-      padding: 32px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 24px;
+    .grid {
+      padding:30px;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:24px;
     }
-
     .card {
-      background: var(--card);
-      border-radius: 16px;
-      padding: 22px;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.12);
-      transition: transform .25s ease, border-color .25s ease;
+      background:rgba(255,255,255,.06);
+      padding:20px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.1);
     }
-
-    .card:hover {
-      transform: translateY(-6px);
-      border-color: var(--blue2);
-    }
-
-    .card h2 {
-      margin: 0 0 10px;
-      color: var(--blue);
-      font-size: 21px;
-      font-weight: 700;
-    }
-
     .metric {
-      font-size: 38px;
-      font-weight: 800;
-      margin: 10px 0;
+      font-size:40px;
+      font-weight:700;
+      margin:10px 0;
+      color:#2ecc71;
     }
-
-    .card p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.45;
-    }
-
-    footer {
-      margin-top: 40px;
-      padding: 20px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
-    }
+    p { color:#89A4C7; }
   </style>
 </head>
 
-<script>
-fetch('status.json', { cache: 'no-store' })
-  .then(r => r.json())
-  .then(data => {
-
-    const fases = data.fases;
-
-    const avg = Math.round(
-      fases.reduce((a,f)=>a+f.porcentaje,0) / fases.length
-    );
-
-    document.getElementById('estado-general').innerText = avg + '%';
-
-    fases.forEach(f => {
-      if (f.nombre.includes('Push'))
-        document.getElementById('pipeline').innerText = f.porcentaje + '%';
-
-      if (f.nombre.includes('Cron'))
-        document.getElementById('automatizacion').innerText = f.porcentaje + '%';
-
-      if (f.nombre.includes('Dashboard'))
-        document.getElementById('uiux').innerText = f.porcentaje + '%';
-
-      if (f.nombre.includes('Publicación'))
-        document.getElementById('publicacion').innerText = f.porcentaje + '%';
-    });
-  })
-  .catch(err => console.error(err));
-</script>
-</body>
-</html>
 <body>
 
-<header>
-  SOA·IACORE — Dashboard Operativo V4
-</header>
+<header>SOA·IACORE — Dashboard Operativo</header>
 
-<section class="container">
-
+<div class="grid">
   <div class="card">
-    <h2>Estado General</h2>
-    <div class="metric">84%</div>
-    <p>Avance consolidado del proyecto en producción.</p>
+    <h3>Estado General</h3>
+    <div class="metric" id="estado">—</div>
+    <p>Avance real del proyecto</p>
   </div>
 
   <div class="card">
-    <h2>Pipeline de Publicación</h2>
-    <div class="metric">100%</div>
-    <p>GitHub Pages + API Commit funcionando sin errores.</p>
+    <h3>Pipeline</h3>
+    <div class="metric" id="pipeline">—</div>
+    <p>GitHub Pages + API</p>
   </div>
 
   <div class="card">
-    <h2>Automatización</h2>
-    <div class="metric">100%</div>
-    <p>Sync inteligente operativo (cron + hashes).</p>
+    <h3>Automatización</h3>
+    <div class="metric" id="auto">—</div>
+    <p>Cron + Sync inteligente</p>
   </div>
+</div>
 
-  <div class="card">
-    <h2>UI / UX del Dashboard</h2>
-    <div class="metric">60%</div>
-    <p>Diseño visual aprobado, integración en progreso.</p>
-  </div>
-
-  <div class="card">
-    <h2>Publicación Final</h2>
-    <div class="metric">0%</div>
-    <p>Se activará al cerrar UI y telemetría.</p>
-  </div>
-
-</section>
-
-<footer>
-  SOA·IACORE — Inteligencia, Orden, Precisión. © 2025
-</footer>
+<script>
+fetch('status.json',{cache:'no-store'})
+.then(r=>r.json())
+.then(d=>{
+  const avg=Math.round(
+    d.fases.reduce((a,f)=>a+f.porcentaje,0)/d.fases.length
+  );
+  estado.textContent=avg+'%';
+  pipeline.textContent='100%';
+  auto.textContent='100%';
+});
+</script>
 
 </body>
 </html>
