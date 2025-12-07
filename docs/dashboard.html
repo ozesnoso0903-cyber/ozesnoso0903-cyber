@@ -1,112 +1,89 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>SOA·IACORE · Dashboard Operativo V5</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="30">
+<meta charset="UTF-8">
+<title>SOA·IACORE · Dashboard Operativo V6</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="refresh" content="30">
 
-  <style>
-    :root{
-      --bg:#08101F;
-      --panel:#0E1A2F;
-      --accent:#4EA2FF;
-      --ok:#2ecc71;
-      --muted:#89A4C7;
-      --border:rgba(255,255,255,.08);
-    }
-    *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto;}
-    body{margin:0;background:var(--bg);color:#EAF0FF}
-    header{
-      padding:22px;
-      text-align:center;
-      font-size:22px;
-      letter-spacing:1px;
-      background:#0B3D91;
-    }
-    .grid{
-      padding:30px;
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-      gap:24px;
-    }
-    .card{
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:22px;
-    }
-    .metric{
-      font-size:42px;
-      font-weight:700;
-      color:var(--ok);
-      margin:8px 0;
-    }
-    .label{
-      font-size:14px;
-      color:var(--muted);
-    }
-    footer{
-      text-align:center;
-      padding:18px;
-      font-size:13px;
-      color:var(--muted);
-      border-top:1px solid var(--border);
-      margin-top:20px;
-    }
-  </style>
+<style>
+:root{
+  --bg:#08101F;--panel:#0E1A2F;--accent:#4EA2FF;
+  --ok:#2ecc71;--warn:#f1c40f;--muted:#8aa4c8;
+  --border:rgba(255,255,255,.08);
+}
+*{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto}
+body{margin:0;background:var(--bg);color:#EAF0FF}
+header{padding:22px;text-align:center;font-size:22px;background:#0B3D91}
+.grid{padding:30px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+
+.card{background:var(--panel);border:1px solid var(--border);
+  border-radius:14px;padding:20px}
+
+.metric{font-size:42px;font-weight:700;color:var(--ok)}
+.label{font-size:14px;color:var(--muted)}
+
+.bar{height:12px;background:#142540;border-radius:8px;overflow:hidden;margin-top:12px}
+.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--ok))}
+
+.timeline{margin-top:16px}
+.step{display:flex;justify-content:space-between;font-size:14px;
+  padding:6px 0;border-bottom:1px solid var(--border)}
+.done{color:var(--ok)} .wip{color:var(--warn)}
+
+footer{text-align:center;color:var(--muted);font-size:13px;
+  padding:18px;border-top:1px solid var(--border)}
+</style>
 </head>
 
 <body>
 
-<header>SOA·IACORE — Dashboard Operativo V5</header>
+<header>SOA·IACORE — Dashboard Operativo V6</header>
 
 <section class="grid">
   <div class="card">
-    <div class="label">Estado general del proyecto</div>
+    <div class="label">Estado General</div>
     <div class="metric" id="estado">—</div>
+    <div class="bar"><span id="barra" style="width:0%"></span></div>
   </div>
 
   <div class="card">
-    <div class="label">Pipeline GitHub / Pages</div>
-    <div class="metric" id="pipeline">—</div>
+    <div class="label">Pipeline / Automatización</div>
+    <div class="metric">100%</div>
+    <p class="label">GitHub Pages + API + Cron</p>
   </div>
 
   <div class="card">
-    <div class="label">Automatización & Cron</div>
-    <div class="metric" id="automatizacion">—</div>
-  </div>
-
-  <div class="card">
-    <div class="label">Dashboard & Visual</div>
-    <div class="metric" id="dashboard">—</div>
+    <div class="label">Timeline del Proyecto</div>
+    <div class="timeline" id="timeline">Cargando…</div>
   </div>
 </section>
 
 <footer>
-  SOA·IACORE · Sistema vivo · Auto-refresh 30s
+SOA·IACORE · Dashboard V6 · Auto-refresh 30s
 </footer>
 
 <script>
-fetch('status.json', { cache: 'no-store' })
-.then(r => r.json())
-.then(data => {
-  const fases = data.fases || [];
-  const total = fases.reduce((a,f)=>a + (f.porcentaje||0),0);
-  const avg = Math.round(total / fases.length);
+fetch('status.json',{cache:'no-store'})
+.then(r=>r.json())
+.then(data=>{
+  const fases=data.fases||[];
+  const total=fases.reduce((a,f)=>a+(f.porcentaje||0),0);
+  const avg=Math.round(total/fases.length);
 
-  document.getElementById('estado').textContent = avg + '%';
-  document.getElementById('pipeline').textContent = '100%';
-  document.getElementById('automatizacion').textContent = '100%';
+  document.getElementById('estado').textContent=avg+'%';
+  document.getElementById('barra').style.width=avg+'%';
 
-  const dash = fases.find(f => f.nombre.includes('Dashboard'));
-  document.getElementById('dashboard').textContent =
-    dash ? dash.porcentaje + '%' : '—';
+  const t=document.getElementById('timeline');
+  t.innerHTML='';
+  fases.forEach(f=>{
+    const div=document.createElement('div');
+    div.className='step '+(f.porcentaje===100?'done':'wip');
+    div.innerHTML=`<span>${f.nombre}</span><span>${f.porcentaje}%</span>`;
+    t.appendChild(div);
+  });
 })
-.catch(e=>{
-  document.getElementById('estado').textContent='ERR';
-  console.error(e);
-});
+.catch(e=>console.error(e));
 </script>
 
 </body>
