@@ -93,6 +93,37 @@
   </style>
 </head>
 
+<script>
+fetch('status.json', { cache: 'no-store' })
+  .then(r => r.json())
+  .then(data => {
+
+    const fases = data.fases;
+
+    const avg = Math.round(
+      fases.reduce((a,f)=>a+f.porcentaje,0) / fases.length
+    );
+
+    document.getElementById('estado-general').innerText = avg + '%';
+
+    fases.forEach(f => {
+      if (f.nombre.includes('Push'))
+        document.getElementById('pipeline').innerText = f.porcentaje + '%';
+
+      if (f.nombre.includes('Cron'))
+        document.getElementById('automatizacion').innerText = f.porcentaje + '%';
+
+      if (f.nombre.includes('Dashboard'))
+        document.getElementById('uiux').innerText = f.porcentaje + '%';
+
+      if (f.nombre.includes('Publicación'))
+        document.getElementById('publicacion').innerText = f.porcentaje + '%';
+    });
+  })
+  .catch(err => console.error(err));
+</script>
+</body>
+</html>
 <body>
 
 <header>
