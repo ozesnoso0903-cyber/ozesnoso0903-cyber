@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>SOA·IACORE · Dashboard Operativo V6</title>
+<title>SOA·IACORE · Dashboard V7</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="refresh" content="30">
 
@@ -14,56 +14,89 @@
 }
 *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto}
 body{margin:0;background:var(--bg);color:#EAF0FF}
-header{padding:22px;text-align:center;font-size:22px;background:#0B3D91}
-.grid{padding:30px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
 
-.card{background:var(--panel);border:1px solid var(--border);
-  border-radius:14px;padding:20px}
+header{
+  padding:20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#0B3D91;
+}
+header h1{margin:0;font-size:20px;letter-spacing:1px}
+button{
+  background:#102a52;color:#EAF0FF;
+  border:1px solid var(--border);
+  padding:8px 14px;border-radius:8px;cursor:pointer;
+}
 
+.grid{padding:30px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px}
 .metric{font-size:42px;font-weight:700;color:var(--ok)}
 .label{font-size:14px;color:var(--muted)}
 
-.bar{height:12px;background:#142540;border-radius:8px;overflow:hidden;margin-top:12px}
+.bar{height:12px;background:#142540;border-radius:8px;overflow:hidden;margin-top:10px}
 .bar span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--ok))}
 
-.timeline{margin-top:16px}
-.step{display:flex;justify-content:space-between;font-size:14px;
-  padding:6px 0;border-bottom:1px solid var(--border)}
+.timeline .step{
+  display:flex;justify-content:space-between;
+  padding:6px 0;border-bottom:1px solid var(--border);
+}
 .done{color:var(--ok)} .wip{color:var(--warn)}
 
-footer{text-align:center;color:var(--muted);font-size:13px;
-  padding:18px;border-top:1px solid var(--border)}
+.hidden{display:none}
+
+footer{
+  text-align:center;font-size:13px;color:var(--muted);
+  padding:16px;border-top:1px solid var(--border)
+}
 </style>
 </head>
 
 <body>
 
-<header>SOA·IACORE — Dashboard Operativo V6</header>
+<header>
+  <h1>SOA·IACORE — Dashboard Operativo V7</h1>
+  <button onclick="toggleView()">Cambiar vista</button>
+</header>
 
-<section class="grid">
+<section class="grid" id="exec">
   <div class="card">
     <div class="label">Estado General</div>
     <div class="metric" id="estado">—</div>
-    <div class="bar"><span id="barra" style="width:0%"></span></div>
+    <div class="bar"><span id="barra"></span></div>
   </div>
 
   <div class="card">
-    <div class="label">Pipeline / Automatización</div>
+    <div class="label">Pipeline & Automatización</div>
     <div class="metric">100%</div>
-    <p class="label">GitHub Pages + API + Cron</p>
+    <p class="label">GitHub Pages · API · Cron</p>
+  </div>
+</section>
+
+<section class="grid hidden" id="tech">
+  <div class="card">
+    <div class="label">Timeline técnico</div>
+    <div class="timeline" id="timeline">Cargando…</div>
   </div>
 
   <div class="card">
-    <div class="label">Timeline del Proyecto</div>
-    <div class="timeline" id="timeline">Cargando…</div>
+    <div class="label">Última actualización</div>
+    <p id="lastUpdate">—</p>
   </div>
 </section>
 
 <footer>
-SOA·IACORE · Dashboard V6 · Auto-refresh 30s
+SOA·IACORE · V7 · Vista dual · Auto-refresh 30s
 </footer>
 
 <script>
+let mode='exec';
+function toggleView(){
+  mode = mode === 'exec' ? 'tech' : 'exec';
+  document.getElementById('exec').classList.toggle('hidden');
+  document.getElementById('tech').classList.toggle('hidden');
+}
+
 fetch('status.json',{cache:'no-store'})
 .then(r=>r.json())
 .then(data=>{
@@ -71,16 +104,18 @@ fetch('status.json',{cache:'no-store'})
   const total=fases.reduce((a,f)=>a+(f.porcentaje||0),0);
   const avg=Math.round(total/fases.length);
 
-  document.getElementById('estado').textContent=avg+'%';
-  document.getElementById('barra').style.width=avg+'%';
+  estado.textContent=avg+'%';
+  barra.style.width=avg+'%';
+
+  lastUpdate.textContent=data.ultimo_update || '—';
 
   const t=document.getElementById('timeline');
   t.innerHTML='';
   fases.forEach(f=>{
-    const div=document.createElement('div');
-    div.className='step '+(f.porcentaje===100?'done':'wip');
-    div.innerHTML=`<span>${f.nombre}</span><span>${f.porcentaje}%</span>`;
-    t.appendChild(div);
+    const d=document.createElement('div');
+    d.className='step '+(f.porcentaje===100?'done':'wip');
+    d.innerHTML=`<span>${f.nombre}</span><span>${f.porcentaje}%</span>`;
+    t.appendChild(d);
   });
 })
 .catch(e=>console.error(e));
