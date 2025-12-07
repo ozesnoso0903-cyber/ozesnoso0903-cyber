@@ -1,107 +1,324 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<title>SOA·IACORE — Dashboard Operativo</title>
+  <meta charset="utf-8">
+  <title>SOA·IACORE — Panel Ejecutivo V11</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Auto-refresh cada 60s -->
+  <meta http-equiv="refresh" content="60">
 
-<meta http-equiv="refresh" content="60">
+  <style>
+    :root{
+      --bg:#050816;
+      --panel:#0b1220;
+      --panel-soft:#0f172a;
+      --accent:#4f46e5;
+      --accent-soft:#818cf8;
+      --ok:#22c55e;
+      --warn:#eab308;
+      --risk:#f97316;
+      --ink:#e5e7eb;
+      --muted:#9ca3af;
+      --border:rgba(148,163,184,.35);
+    }
+    *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto}
+    body{margin:0;background:radial-gradient(circle at top,#1d2542 0,#050816 45%,#020617 100%);color:var(--ink);}
+    header{
+      padding:18px 26px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      border-bottom:1px solid var(--border);
+      backdrop-filter:blur(12px);
+      background:linear-gradient(90deg,rgba(15,23,42,.95),rgba(30,64,175,.9));
+    }
+    header h1{margin:0;font-size:20px;letter-spacing:.08em;text-transform:uppercase;}
+    header span.tag{
+      font-size:12px;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.6);
+      color:var(--muted);
+    }
+    main{max-width:1100px;margin:0 auto;padding:22px 16px 32px;}
 
-<style>
-:root{
-  --blue:#0B3D91;
-  --blue2:#1F5FD6;
-  --bg:#0B1220;
-  --card:#111A2E;
-  --ink:#E6ECF3;
-  --muted:#9FB0C8;
-}
-*{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto;}
-body{margin:0;background:var(--bg);color:var(--ink);}
-header{
-  padding:24px;
-  text-align:center;
-  background:linear-gradient(90deg,var(--blue),var(--blue2));
-  font-size:22px;
-  font-weight:600;
-}
-.container{
-  max-width:1100px;
-  margin:auto;
-  padding:30px;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:20px;
-}
-.card{
-  background:var(--card);
-  border-radius:14px;
-  padding:22px;
-  box-shadow:0 8px 30px rgba(0,0,0,.4);
-}
-.card h2{margin:0 0 10px;font-size:18px;color:#7DB4FF;}
-.metric{font-size:38px;font-weight:700;color:#ffffff;}
-small{color:var(--muted);}
-.footer{
-  text-align:center;
-  font-size:13px;
-  padding:20px;
-  color:var(--muted);
-}
-</style>
+    .layout{
+      display:grid;
+      grid-template-columns: minmax(0,2.1fr) minmax(0,1.4fr);
+      gap:18px;
+    }
+    @media (max-width: 900px){
+      .layout{grid-template-columns:1fr;}
+    }
+
+    .card{
+      background:linear-gradient(135deg,rgba(15,23,42,.96),rgba(15,23,42,.92));
+      border-radius:16px;
+      border:1px solid var(--border);
+      padding:18px 18px 16px;
+      box-shadow:0 18px 45px rgba(0,0,0,.7);
+    }
+    .card h2{
+      margin:0 0 10px;
+      font-size:15px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      color:var(--muted);
+    }
+
+    .kpi-row{
+      display:flex;
+      align-items:flex-end;
+      gap:18px;
+      margin-bottom:8px;
+    }
+    .kpi-main{
+      font-size:40px;
+      font-weight:700;
+    }
+    .kpi-chip{
+      font-size:12px;
+      padding:3px 9px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.6);
+      color:var(--muted);
+    }
+    .kpi-label{
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .status-ok{color:var(--ok);}
+    .status-warn{color:var(--warn);}
+    .status-risk{color:var(--risk);}
+
+    .bar{
+      margin-top:12px;
+      height:10px;
+      border-radius:999px;
+      background:rgba(15,23,42,1);
+      overflow:hidden;
+      border:1px solid rgba(55,65,81,.9);
+    }
+    .bar span{
+      display:block;
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,var(--accent),var(--ok));
+      transition:width .6s ease-out;
+    }
+
+    .summary-block p{
+      margin:4px 0;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.5;
+    }
+    .summary-block p strong{color:var(--ink);}
+
+    .pill-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:10px;
+    }
+    .pill{
+      font-size:11px;
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.5);
+      color:var(--muted);
+      background:rgba(15,23,42,.9);
+    }
+
+    .timeline{
+      margin-top:6px;
+      font-size:13px;
+    }
+    .timeline-item{
+      display:flex;
+      justify-content:space-between;
+      padding:4px 0;
+      border-bottom:1px dashed rgba(75,85,99,.7);
+    }
+    .timeline-item:last-child{border-bottom:none;}
+    .timeline-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .timeline-badge{
+      font-size:11px;
+      padding:2px 7px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.6);
+    }
+
+    .meta{
+      margin-top:8px;
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    footer{
+      text-align:center;
+      font-size:12px;
+      color:var(--muted);
+      padding:10px 0 4px;
+    }
+  </style>
 </head>
 
 <body>
 
-<header>SOA·IACORE — Dashboard Operativo</header>
+<header>
+  <h1>SOA·IACORE · Panel Ejecutivo</h1>
+  <span class="tag" id="exec-tag">Cargando estado…</span>
+</header>
 
-<div class="container">
-  <div class="card">
-    <h2>Estado General</h2>
-    <div class="metric" id="estado-general">—</div>
-    <small>Promedio real de fases</small>
+<main>
+  <div class="layout">
+    <!-- Bloque ejecutivo principal -->
+    <section class="card">
+      <h2>Resumen ejecutivo</h2>
+
+      <div class="kpi-row">
+        <div>
+          <div class="kpi-main status-ok" id="kpi-avg">--%</div>
+          <div class="kpi-label" id="kpi-label">Estado general del proyecto</div>
+        </div>
+        <div class="kpi-chip" id="kpi-risk">Riesgo: —</div>
+      </div>
+
+      <div class="bar">
+        <span id="bar-fill"></span>
+      </div>
+
+      <div class="summary-block" id="summary-text">
+        <p>Cargando lectura ejecutiva…</p>
+      </div>
+
+      <div class="pill-row" id="pill-row">
+        <!-- Pills de fases se insertan aquí -->
+      </div>
+    </section>
+
+    <!-- Bloque técnico resumido -->
+    <section class="card">
+      <h2>Detalle técnico condensado</h2>
+
+      <div class="timeline" id="timeline">
+        Cargando fases…
+      </div>
+
+      <div class="meta">
+        <span id="meta-update">Última actualización: —</span>
+        <span id="meta-progress">Completadas: — · En curso: —</span>
+      </div>
+    </section>
   </div>
+</main>
 
-  <div class="card">
-    <h2>Pipeline Publicación</h2>
-    <div class="metric" id="pipeline">—</div>
-  </div>
-
-  <div class="card">
-    <h2>Automatización</h2>
-    <div class="metric" id="automatizacion">—</div>
-  </div>
-
-  <div class="card">
-    <h2>UI / Dashboard</h2>
-    <div class="metric" id="uiux">—</div>
-  </div>
-
-  <div class="card">
-    <h2>Publicación Final</h2>
-    <div class="metric" id="publicacion">—</div>
-  </div>
-</div>
-
-<div class="footer">
-  SOA·IACORE · Actualización automática cada 60s
-</div>
+<footer>
+  SOA·IACORE · V11 — Vista ejecutiva con auto-refresh (60s) · Fuente: status.json
+</footer>
 
 <script>
-fetch('status.json', {cache:'no-store'})
-.then(r=>r.json())
-.then(data=>{
-  const total = data.fases.reduce((a,f)=>a+f.porcentaje,0);
-  document.getElementById('estado-general').textContent =
-    Math.round(total / data.fases.length) + '%';
+function classifyRisk(avg, stalledCount){
+  if (avg >= 90 && stalledCount === 0) return {level:'Bajo', class:'status-ok', tag:'EN CONTROL'};
+  if (avg >= 75) return {level:'Medio', class:'status-warn', tag:'EN ATENCIÓN'};
+  return {level:'Alto', class:'status-risk', tag:'RIESGO / SEGUIMIENTO DIARIO'};
+}
 
-  data.fases.forEach(f=>{
-    if(f.nombre.includes('Push')) document.getElementById('pipeline').textContent = f.porcentaje+'%';
-    if(f.nombre.includes('Cron')) document.getElementById('automatizacion').textContent = f.porcentaje+'%';
-    if(f.nombre.includes('Dashboard')) document.getElementById('uiux').textContent = f.porcentaje+'%';
-    if(f.nombre.includes('AutoDeploy')) document.getElementById('publicacion').textContent = f.porcentaje+'%';
+fetch('status.json', { cache: 'no-store' })
+  .then(r => r.json())
+  .then(data => {
+    const fases = data.fases || [];
+    if (!fases.length) return;
+
+    const total = fases.reduce((a,f)=>a + (f.porcentaje || 0), 0);
+    const avg = Math.round(total / fases.length);
+
+    const completas = fases.filter(f => f.porcentaje === 100);
+    const enCurso = fases.filter(f => f.porcentaje > 0 && f.porcentaje < 100);
+    const pendientes = fases.filter(f => !f.porcentaje || f.porcentaje === 0);
+
+    const stalled = enCurso.filter(f => (f.estado || '').toLowerCase().includes('detenido')).length;
+
+    // Riesgo
+    const risk = classifyRisk(avg, stalled);
+    const kpiAvg = document.getElementById('kpi-avg');
+    const kpiRisk = document.getElementById('kpi-risk');
+    const kpiLabel = document.getElementById('kpi-label');
+    const barFill = document.getElementById('bar-fill');
+    const execTag = document.getElementById('exec-tag');
+
+    kpiAvg.textContent = avg + '%';
+    kpiAvg.classList.add(risk.class);
+    kpiRisk.textContent = 'Riesgo: ' + risk.level;
+    kpiRisk.classList.add(risk.class);
+    execTag.textContent = risk.tag;
+    execTag.classList.add(risk.class);
+    barFill.style.width = avg + '%';
+
+    // Resumen ejecutivo
+    const summary = document.getElementById('summary-text');
+    const faseClave = enCurso[0] || pendientes[0] || completas[completas.length-1];
+
+    summary.innerHTML = `
+      <p><strong>Estado global:</strong> el proyecto se encuentra en <strong>${avg}%</strong> de avance real, con <strong>${completas.length}</strong> fase(s) completada(s) y <strong>${enCurso.length}</strong> en curso.</p>
+      <p><strong>Riesgo operativo:</strong> nivel <strong>${risk.level}</strong>, ${
+        risk.level === 'Bajo'
+          ? 'la ejecución está alineada y bajo control.'
+          : risk.level === 'Medio'
+              ? 'se requiere seguimiento cercano en las fases activas.'
+              : 'es imprescindible revisión diaria de bloqueos y dependencias.'
+      }</p>
+      ${
+        faseClave
+          ? `<p><strong>Próximo foco:</strong> fase <strong>“${faseClave.nombre}”</strong> (${faseClave.porcentaje || 0}%). Es la siguiente palanca directa para subir el indicador global.</p>`
+          : ''
+      }
+    `;
+
+    // Pills
+    const pillRow = document.getElementById('pill-row');
+    pillRow.innerHTML = '';
+    fases.forEach(f => {
+      const pill = document.createElement('span');
+      pill.className = 'pill';
+      pill.textContent = `${f.nombre} · ${f.porcentaje || 0}%`;
+      pillRow.appendChild(pill);
+    });
+
+    // Timeline
+    const timeline = document.getElementById('timeline');
+    timeline.innerHTML = '';
+    fases.forEach(f => {
+      const item = document.createElement('div');
+      item.className = 'timeline-item';
+      const badgeClass =
+        f.porcentaje === 100 ? 'status-ok' :
+        f.porcentaje > 0 ? 'status-warn' : 'status-risk';
+      item.innerHTML = `
+        <span class="timeline-name">${f.nombre}</span>
+        <span class="timeline-badge ${badgeClass}">${f.porcentaje || 0}%</span>
+      `;
+      timeline.appendChild(item);
+    });
+
+    // Meta
+    document.getElementById('meta-update').textContent =
+      'Última actualización: ' + (data.ultimo_update || '—');
+    document.getElementById('meta-progress').textContent =
+      'Completadas: ' + completas.length +
+      ' · En curso: ' + enCurso.length +
+      (pendientes.length ? ' · Pendientes: ' + pendientes.length : '');
+  })
+  .catch(err => {
+    console.error('Error leyendo status.json', err);
+    document.getElementById('exec-tag').textContent = 'SIN DATOS · Revisar status.json';
   });
-})
-.catch(()=>console.warn('status.json no disponible'));
 </script>
 
 </body>
