@@ -14,87 +14,30 @@
   --ok:#36d399;
   --warn:#fbbf24;
 }
-
-*{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto}
+*{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI}
 body{
   margin:0;
   background:linear-gradient(180deg,#08101f,#0c1630);
   color:var(--ink);
 }
-
 header{
   padding:28px 40px;
   border-bottom:1px solid rgba(255,255,255,.08);
 }
-
-header h1{
-  margin:0;
-  font-size:28px;
-  font-weight:600;
-  letter-spacing:.4px;
-}
-
-header p{
-  margin:6px 0 0;
-  color:var(--muted);
-  font-size:15px;
-}
-
-main{
-  max-width:1200px;
-  margin:40px auto;
-  padding:0 32px;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:22px;
-}
-
+header h1{margin:0;font-size:28px;font-weight:600}
+header p{margin:6px 0 0;color:var(--muted)}
+main{max-width:1200px;margin:40px auto;padding:0 32px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px}
 .card{
   background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
   border:1px solid rgba(255,255,255,.08);
   border-radius:16px;
   padding:22px;
-  transition:.25s ease;
 }
-
-.card:hover{
-  transform:translateY(-3px);
-  border-color:rgba(78,162,255,.6);
-}
-
-.card h2{
-  margin:0 0 8px;
-  font-size:17px;
-  font-weight:500;
-  color:var(--muted);
-}
-
-.metric{
-  font-size:38px;
-  font-weight:700;
-  letter-spacing:.5px;
-  margin:6px 0;
-}
-
-.ok{color:var(--ok)}
-.warn{color:var(--warn)}
-.blue{color:var(--blue)}
-
-.card p{
-  margin:6px 0 0;
-  font-size:14px;
-  color:var(--muted);
-}
-
-footer{
-  margin:60px 0 30px;
-  text-align:center;
-  color:var(--muted);
-  font-size:13px;
-}
+.card h2{margin:0 0 6px;font-size:17px;color:var(--muted)}
+.metric{font-size:36px;font-weight:700;margin:6px 0}
+.ok{color:var(--ok)} .warn{color:var(--warn)} .blue{color:var(--blue)}
+footer{margin:50px 0 30px;text-align:center;color:var(--muted);font-size:13px}
 </style>
 </head>
 
@@ -102,7 +45,7 @@ footer{
 
 <header>
   <h1>SOA·IACORE — Executive Dashboard</h1>
-  <p>Estado consolidado en tiempo real · Automatización · Producción</p>
+  <p id="updated">Cargando estado…</p>
 </header>
 
 <main>
@@ -110,46 +53,60 @@ footer{
 
     <div class="card">
       <h2>Estado General</h2>
-      <div class="metric blue">100%</div>
-      <p>Proyecto estable en producción.</p>
+      <div class="metric blue" id="general">–</div>
     </div>
 
     <div class="card">
-      <h2>Pipeline de Publicación</h2>
-      <div class="metric ok">100%</div>
-      <p>GitHub Pages + API Commit operativo.</p>
+      <h2>Pipeline Publicación</h2>
+      <div class="metric ok" id="pipeline">–</div>
     </div>
 
     <div class="card">
       <h2>Automatización</h2>
-      <div class="metric ok">100%</div>
-      <p>Push inteligente, cron y control SHA activos.</p>
+      <div class="metric ok" id="automation">–</div>
     </div>
 
     <div class="card">
       <h2>Dashboard UI</h2>
-      <div class="metric warn">85%</div>
-      <p>Diseño ejecutivo aprobado, afinado visual.</p>
+      <div class="metric warn" id="uiux">–</div>
     </div>
 
     <div class="card">
-      <h2>Riesgo Operativo</h2>
-      <div class="metric ok">Bajo</div>
-      <p>Sin incidentes, sin deuda técnica crítica.</p>
-    </div>
-
-    <div class="card">
-      <h2>Siguiente Fase</h2>
-      <div class="metric blue">Insights</div>
-      <p>KPI dinámicos, telemetría y lectura directiva.</p>
+      <h2>Publicación Final</h2>
+      <div class="metric blue" id="deploy">–</div>
     </div>
 
   </section>
 </main>
 
 <footer>
-  SOA·IACORE — Estado Ejecutivo · Actualización automática
+  SOA·IACORE · KPIs dinámicos en tiempo real
 </footer>
+
+<script>
+fetch('status.json',{cache:'no-store'})
+.then(r=>r.json())
+.then(data=>{
+  document.getElementById('updated').innerText =
+    'Última actualización: ' + data.ultimo_update;
+
+  let total = 0;
+  data.fases.forEach(f => total += f.porcentaje);
+  document.getElementById('general').innerText =
+    Math.round(total / data.fases.length) + '%';
+
+  data.fases.forEach(f=>{
+    if(f.nombre.includes('Push')) pipeline.innerText = f.porcentaje + '%';
+    if(f.nombre.includes('Cron')) automation.innerText = f.porcentaje + '%';
+    if(f.nombre.includes('Dashboard')) uiux.innerText = f.porcentaje + '%';
+    if(f.nombre.includes('AutoDeploy')) deploy.innerText = f.porcentaje + '%';
+  });
+})
+.catch(e=>{
+  document.getElementById('updated').innerText = 'Error cargando status.json';
+  console.error(e);
+});
+</script>
 
 </body>
 </html>
