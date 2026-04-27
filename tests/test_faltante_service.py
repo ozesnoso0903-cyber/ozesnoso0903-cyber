@@ -54,6 +54,30 @@ class FaltanteServiceTestCase(unittest.TestCase):
         finally:
             self._stop_server(server, thread)
 
+    def test_head_requests_return_status_without_body(self):
+        server, thread, port = self._start_server(service_name="qa-faltante", health_status="ok")
+        try:
+            request = urllib.request.Request(f"http://127.0.0.1:{port}/", method="HEAD")
+            response = urllib.request.urlopen(request, timeout=2)
+
+            self.assertEqual(response.status, 200)
+            self.assertEqual(response.read(), b"")
+            self.assertEqual(response.headers.get_content_type(), "application/json")
+            self.assertGreater(int(response.headers.get("Content-Length", 0)), 0)
+        finally:
+            self._stop_server(server, thread)
+
+    def test_head_respects_health_status(self):
+        server, thread, port = self._start_server(service_name="qa-faltante", health_status="fail")
+        try:
+            request = urllib.request.Request(f"http://127.0.0.1:{port}/healthz", method="HEAD")
+            with self.assertRaises(urllib.error.HTTPError) as ctx:
+                urllib.request.urlopen(request, timeout=2)
+            self.assertEqual(ctx.exception.code, 503)
+            self.assertGreater(int(ctx.exception.headers.get("Content-Length", 0)), 0)
+        finally:
+            self._stop_server(server, thread)
+
 
 if __name__ == "__main__":
     unittest.main()

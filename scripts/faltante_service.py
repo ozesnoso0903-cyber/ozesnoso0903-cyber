@@ -41,13 +41,20 @@ class RequestHandler(BaseHTTPRequestHandler):
     health_status: str = "ok"
     start_time: float = time.monotonic()
 
-    def _send_json(self, payload: Dict[str, Any], status: HTTPStatus = HTTPStatus.OK) -> None:
+    def _send_json(
+        self,
+        payload: Dict[str, Any],
+        status: HTTPStatus = HTTPStatus.OK,
+        *,
+        send_body: bool = True,
+    ) -> None:
         body = json.dumps(payload).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
-        self.wfile.write(body)
+        if send_body:
+            self.wfile.write(body)
 
     def do_GET(self) -> None:  # noqa: N802 - method name required by BaseHTTPRequestHandler
         LOG.info("Handling GET %s", self.path)
@@ -68,6 +75,25 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self._send_json(payload, status=HTTPStatus.SERVICE_UNAVAILABLE)
         else:
             self._send_json({"error": "not found"}, status=HTTPStatus.NOT_FOUND)
+
+    def do_HEAD(self) -> None:  # noqa: N802 - method name required by BaseHTTPRequestHandler
+        LOG.info("Handling HEAD %s", self.path)
+        if self.path == "/":
+            uptime = max(0.0, time.monotonic() - self.start_time)
+            self._send_json(
+                {
+                    "service": self.service_name,
+                    "status": "running",
+                    "uptime_seconds": round(uptime, 3),
+                },
+                send_body=False,
+            )
+        elif self.path == "/healthz":
+            payload = {"service": self.service_name, "status": self.health_status}
+            status = HTTPStatus.OK if self.health_status == "ok" else HTTPStatus.SERVICE_UNAVAILABLE
+            self._send_json(payload, status=status, send_body=False)
+        else:
+            self._send_json({"error": "not found"}, status=HTTPStatus.NOT_FOUND, send_body=False)
 
     def log_message(self, format: str, *args: Tuple[Any, ...]) -> None:  # noqa: A003 - inherited signature
         LOG.info("%s - - %s", self.address_string(), format % args)
