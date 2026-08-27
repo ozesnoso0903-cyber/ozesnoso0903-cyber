@@ -1,9 +1,9 @@
-title: "SOAiACORE"
-description: "Sistema Meta-Cognitivo Neuro-Simbólico · Arquitectura Emocional y Reflexiva"
+title: "SOAiaCore"
+description: "Cognitive intelligence infrastructure for context, evidence, governance, decision, and auditable execution."
 theme: minima
 markdown: kramdown
 plugins:
   - jekyll-feed
   - jekyll-seo-tag
-baseurl: ""
-url: "https://ozesnoso0903-cyber.github.io/ozesnoso0903-cibernético"
+baseurl: "/ozesnoso0903-cyber"
+url: "https://ozesnoso0903-cyber.github.io"
