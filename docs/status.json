@@ -2,6 +2,10 @@
   "proyecto": "SOAiACORE-AUTOMATOR",
   "descripcion": "Pipeline de sincronización SOAiACORE ↔ GitHub Pages",
   "ultimo_update": "2025-11-17T09:35:18-06:00",
+  "lifecycle_status": "HISTORICAL_SUPERSEDED",
+  "authority": "NON_CANONICAL_PUBLIC_ARCHIVE",
+  "superseded_at": "2026-08-26",
+  "current_state_rule": "Do not use this file for current SOAIACORE state. Resolve current state through SOA CONTEXT → SOA SYNC → SOA PRECHECK using canonical Drive governance records and the canonical SOAIACORE repository.",
   "fases": [
     { "nombre": "Integración Core + API GitHub", "porcentaje": 100 },
     { "nombre": "Push Inteligente + SHA", "porcentaje": 100 },
