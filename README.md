@@ -8,7 +8,7 @@
 
 Building systems that transform complex information into evidence-grounded analysis, decisions, and auditable execution.
 
-[![SOAiaCore](https://img.shields.io/badge/Building-SOAiaCore-181717?style=flat-square)](https://soaiacore.com)
+[![SOAIACORE](https://img.shields.io/badge/Building-SOAIACORE-181717?style=flat-square)](https://soaiacore.com)
 ![Status](https://img.shields.io/badge/Status-Active_Development-555555?style=flat-square)
 ![Architecture](https://img.shields.io/badge/Architecture-Core_%C2%B7_Web_%C2%B7_Worker-333333?style=flat-square)
 
@@ -30,9 +30,9 @@ I am especially interested in AI systems that must do more than generate plausib
 
 ---
 
-## Building · SOAiaCore
+## Building · SOAIACORE
 
-**SOAiaCore** is my principal AI systems project: a modular intelligence architecture for turning heterogeneous information into governed, traceable, decision-ready intelligence.
+**SOAIACORE** is my principal AI systems project: a modular intelligence architecture for turning heterogeneous information into governed, traceable, decision-ready intelligence.
 
 ```text
 INFORMATION
@@ -120,7 +120,7 @@ DOCUMENTED FACT ≠ INFERENCE ≠ HYPOTHESIS
 
 ## Current Focus
 
-**SOAiaCore** · Cognitive systems architecture  
+**SOAIACORE** · Cognitive systems architecture  
 **SOA Context Protocol** · Context integrity and execution governance  
 **Evidence Intelligence** · From unstructured corpora to auditable analysis  
 **Decision Intelligence** · From analysis to criterion, decision, and action
@@ -136,13 +136,13 @@ INFORMATION → DIAGNOSIS → CRITERION → DECISION → ACTION
 I am interested in serious work and conversations around **AI systems architecture, LLM infrastructure, agentic systems, AI governance, evidence engineering, computational social analysis, decision intelligence, and human–AI interaction**.
 
 **GitHub:** [@ozesnoso0903-cyber](https://github.com/ozesnoso0903-cyber)  
-**SOAiaCore:** [soaiacore.com](https://soaiacore.com)
+**SOAIACORE:** [soaiacore.com](https://soaiacore.com)
 
 ---
 
 <div align="center">
 
-### SOAiaCore
+### SOAIACORE
 
 **Cognition × Evidence × Architecture × Intelligence**
 
