@@ -1,11 +1,11 @@
 ---
 layout: default
-title: SOAiaCore
+title: SOAIACORE
 ---
 
 <div align="center">
 
-# SOAiaCore
+# SOAIACORE
 
 ### Cognitive Intelligence Infrastructure
 
@@ -17,7 +17,7 @@ title: SOAiaCore
 
 ## System Thesis
 
-**SOAiaCore** is an evolving cognitive systems architecture designed to transform heterogeneous information into governed, traceable, decision-ready intelligence.
+**SOAIACORE** is an evolving cognitive systems architecture designed to transform heterogeneous information into governed, traceable, decision-ready intelligence.
 
 Its purpose is practical rather than anthropomorphic: to build AI-assisted infrastructure that can preserve context, distinguish evidence from inference, expose uncertainty, support human adjudication, and produce auditable execution artifacts.
 
@@ -56,7 +56,7 @@ The current engineering model is organized around modular runtime services and e
 
 ## Engineering Principle
 
-SOAiaCore treats analytical output as something that must remain inspectable.
+SOAIACORE treats analytical output as something that must remain inspectable.
 
 ```text
 DOCUMENTED FACT ≠ INFERENCE ≠ HYPOTHESIS
@@ -103,6 +103,6 @@ The architectural objective is not maximum automation. It is **better governed i
 
 **SOA · Cognitive Systems Architect**
 
-[GitHub](https://github.com/ozesnoso0903-cyber) · [SOAiaCore](https://soaiacore.com)
+[GitHub](https://github.com/ozesnoso0903-cyber) · [SOAIACORE](https://soaiacore.com)
 
 </div>
