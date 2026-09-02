@@ -1,3 +1,5 @@
+> **Estado de archivo — HISTÓRICO / NO CANÓNICO.** Este índice se conserva como registro de la documentación de 2025 y no debe interpretarse como catálogo del estado técnico vigente. Consulte [ARCHIVE_NOTICE.md](./ARCHIVE_NOTICE.md).
+
 # SOAIAcore Technologies — Documentación Oficial 2025
 
 1. Executive Overview
