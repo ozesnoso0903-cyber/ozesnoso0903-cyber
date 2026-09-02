@@ -1,0 +1,109 @@
+name: Gate A Full History Secret Scan
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/gate-a-full-history.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  full-history-secret-scan:
+    name: Gitleaks + TruffleHog full history
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out complete history
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Verify repository history is available
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fsck --full --no-reflogs
+          test "$(git rev-list --all --count)" -gt 0
+
+      - name: Run full-history scanners without exposing findings
+        id: scan
+        shell: bash
+        run: |
+          set -u
+          mkdir -p "$RUNNER_TEMP/gate-a"
+
+          set +e
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/repo" \
+            zricethezav/gitleaks:v8.30.1 \
+            git --repo-path=/repo --report-format=json --report-path=/repo/.gate-a-gitleaks.json --exit-code=17 --no-banner >/dev/null 2>&1
+          GITLEAKS_EXIT=$?
+
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/repo" \
+            trufflesecurity/trufflehog:3.97.1 \
+            git file:///repo --json --no-update > "$RUNNER_TEMP/gate-a/trufflehog.jsonl" 2>/dev/null
+          TRUFFLEHOG_EXIT=$?
+          set -e
+
+          if [ -f "$GITHUB_WORKSPACE/.gate-a-gitleaks.json" ]; then
+            GITLEAKS_COUNT=$(jq 'length' "$GITHUB_WORKSPACE/.gate-a-gitleaks.json" 2>/dev/null || echo UNKNOWN)
+          else
+            GITLEAKS_COUNT=UNKNOWN
+          fi
+
+          if [ -s "$RUNNER_TEMP/gate-a/trufflehog.jsonl" ]; then
+            TRUFFLEHOG_COUNT=$(wc -l < "$RUNNER_TEMP/gate-a/trufflehog.jsonl" | tr -d ' ')
+          else
+            TRUFFLEHOG_COUNT=0
+          fi
+
+          GITLEAKS_STATUS=ERROR
+          if [ "$GITLEAKS_EXIT" -eq 0 ]; then GITLEAKS_STATUS=PASS; fi
+          if [ "$GITLEAKS_EXIT" -eq 17 ]; then GITLEAKS_STATUS=FINDINGS; fi
+
+          TRUFFLEHOG_STATUS=ERROR
+          if [ "$TRUFFLEHOG_EXIT" -eq 0 ]; then TRUFFLEHOG_STATUS=PASS; fi
+
+          OVERALL=FAIL
+          if [ "$GITLEAKS_STATUS" = "PASS" ] && [ "$TRUFFLEHOG_STATUS" = "PASS" ] && [ "$TRUFFLEHOG_COUNT" -eq 0 ]; then
+            OVERALL=PASS
+          fi
+
+          {
+            echo "GATE_A_FULL_HISTORY_SECRET_SCAN"
+            echo "repository=${GITHUB_REPOSITORY}"
+            echo "commit=${GITHUB_SHA}"
+            echo "history_commit_count=$(git rev-list --all --count)"
+            echo "gitleaks_version=8.30.1"
+            echo "gitleaks_status=${GITLEAKS_STATUS}"
+            echo "gitleaks_finding_count=${GITLEAKS_COUNT}"
+            echo "trufflehog_version=3.97.1"
+            echo "trufflehog_status=${TRUFFLEHOG_STATUS}"
+            echo "trufflehog_result_count=${TRUFFLEHOG_COUNT}"
+            echo "raw_findings_published=false"
+            echo "overall=${OVERALL}"
+          } > GATE_A_RECEIPT.txt
+
+          rm -f "$GITHUB_WORKSPACE/.gate-a-gitleaks.json" "$RUNNER_TEMP/gate-a/trufflehog.jsonl"
+
+          cat GATE_A_RECEIPT.txt
+
+          if [ "$OVERALL" != "PASS" ]; then
+            exit 1
+          fi
+
+      - name: Upload sanitized Gate A receipt
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: gate-a-sanitized-receipt
+          path: GATE_A_RECEIPT.txt
+          if-no-files-found: error
+          retention-days: 14
