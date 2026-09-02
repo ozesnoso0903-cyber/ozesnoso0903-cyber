@@ -1,9 +1,0 @@
-title: "SOAIACORE"
-description: "Cognitive intelligence infrastructure for context, evidence, governance, decision, and auditable execution."
-theme: minima
-markdown: kramdown
-plugins:
-  - jekyll-feed
-  - jekyll-seo-tag
-baseurl: "/ozesnoso0903-cyber"
-url: "https://ozesnoso0903-cyber.github.io"
