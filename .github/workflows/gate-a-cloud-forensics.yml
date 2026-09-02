@@ -1,0 +1,188 @@
+name: Gate A Cloud Forensics
+
+on:
+  push:
+    branches:
+      - audit/gate-a-secret-scan-20260901
+    paths:
+      - .github/workflows/gate-a-cloud-forensics.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gate-a:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch every remote branch and tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin '+refs/heads/*:refs/remotes/origin/*' --tags --force --prune
+          git branch -a
+
+      - name: Run forensic scan and build receipt
+        shell: bash
+        run: |
+          set -uo pipefail
+          REPORT="$GITHUB_WORKSPACE/gate_a_receipt"
+          BIN="$RUNNER_TEMP/soa-audit-bin"
+          RAW_TH="$RUNNER_TEMP/trufflehog_raw.jsonl"
+          mkdir -p "$REPORT" "$BIN"
+
+          FSCK_EXIT=0
+          git fsck --full --no-dangling >"$REPORT/git_fsck.txt" 2>&1 || FSCK_EXIT=$?
+
+          printf 'branch\tbehind\tahead\tunique_commits\n' > "$REPORT/branch_topology.tsv"
+          for branch in \
+            origin/codex/prepare-automation-plan-for-script-execution \
+            origin/codex/fix-module-installation-path-error \
+            origin/codex/review-chatgpt.com-link \
+            origin/codex/setup-fratmx-assets-directories-and-permissions
+          do
+            if git rev-parse --verify "${branch}^{commit}" >/dev/null 2>&1; then
+              read -r behind ahead < <(git rev-list --left-right --count origin/main..."$branch")
+              unique=$(git rev-list --count origin/main.."$branch")
+              printf '%s\t%s\t%s\t%s\n' "$branch" "$behind" "$ahead" "$unique" >> "$REPORT/branch_topology.tsv"
+            else
+              printf '%s\tMISSING\tMISSING\tMISSING\n' "$branch" >> "$REPORT/branch_topology.tsv"
+            fi
+          done
+
+          GITLEAKS_INSTALL=0
+          curl -fsSL -o "$RUNNER_TEMP/gitleaks.tgz" \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz || GITLEAKS_INSTALL=$?
+          if [[ "$GITLEAKS_INSTALL" -eq 0 ]]; then
+            tar -xzf "$RUNNER_TEMP/gitleaks.tgz" -C "$BIN" gitleaks || GITLEAKS_INSTALL=$?
+          fi
+
+          TRUFFLE_INSTALL=0
+          curl -fsSL -o "$RUNNER_TEMP/trufflehog.tgz" \
+            https://github.com/trufflesecurity/trufflehog/releases/download/v3.97.1/trufflehog_3.97.1_linux_amd64.tar.gz || TRUFFLE_INSTALL=$?
+          if [[ "$TRUFFLE_INSTALL" -eq 0 ]]; then
+            tar -xzf "$RUNNER_TEMP/trufflehog.tgz" -C "$BIN" trufflehog || TRUFFLE_INSTALL=$?
+          fi
+
+          GITLEAKS_EXIT=127
+          GITLEAKS_FINDINGS=UNKNOWN
+          if [[ "$GITLEAKS_INSTALL" -eq 0 ]]; then
+            "$BIN/gitleaks" version > "$REPORT/gitleaks_version.txt" 2>&1
+            "$BIN/gitleaks" git --redact --report-format json \
+              --report-path "$REPORT/gitleaks_redacted.json" \
+              --log-opts='--all --full-history' . \
+              >"$REPORT/gitleaks_stdout.txt" 2>"$REPORT/gitleaks_stderr.txt"
+            GITLEAKS_EXIT=$?
+            GITLEAKS_FINDINGS=$(python3 - "$REPORT/gitleaks_redacted.json" <<'PY'
+import json, pathlib, sys
+p = pathlib.Path(sys.argv[1])
+if not p.exists():
+    print('UNKNOWN')
+    raise SystemExit
+try:
+    data = json.loads(p.read_text(encoding='utf-8') or '[]')
+    print(len(data) if isinstance(data, list) else 'UNKNOWN')
+except Exception:
+    print('UNKNOWN')
+PY
+)
+          fi
+
+          TRUFFLE_EXIT=127
+          TRUFFLE_FINDINGS=UNKNOWN
+          TRUFFLE_VERIFIED=UNKNOWN
+          if [[ "$TRUFFLE_INSTALL" -eq 0 ]]; then
+            "$BIN/trufflehog" --version > "$REPORT/trufflehog_version.txt" 2>&1
+            "$BIN/trufflehog" git file://. --results=verified,unknown --json \
+              >"$RAW_TH" 2>"$REPORT/trufflehog_stderr.txt"
+            TRUFFLE_EXIT=$?
+            read -r TRUFFLE_FINDINGS TRUFFLE_VERIFIED < <(python3 - "$RAW_TH" "$REPORT/trufflehog_sanitized.jsonl" <<'PY'
+import json, pathlib, sys
+src = pathlib.Path(sys.argv[1])
+out = pathlib.Path(sys.argv[2])
+total = verified = 0
+safe = []
+if src.exists():
+    for line in src.read_text(encoding='utf-8', errors='replace').splitlines():
+        if not line.strip():
+            continue
+        try:
+            item = json.loads(line)
+        except Exception:
+            continue
+        total += 1
+        if item.get('Verified') is True:
+            verified += 1
+        git = (((item.get('SourceMetadata') or {}).get('Data') or {}).get('Git') or {})
+        safe.append({
+            'detector': item.get('DetectorName'),
+            'verified': item.get('Verified'),
+            'commit': git.get('commit'),
+            'file': git.get('file'),
+            'line': git.get('line'),
+            'timestamp': git.get('timestamp'),
+        })
+out.write_text('\n'.join(json.dumps(x, sort_keys=True) for x in safe), encoding='utf-8')
+print(total, verified)
+PY
+)
+            rm -f "$RAW_TH"
+          fi
+
+          STATUS=FAIL
+          SECRET_SCAN=ERROR
+          DELETE_AUTH=NO
+
+          if [[ "$FSCK_EXIT" -eq 0 && "$GITLEAKS_INSTALL" -eq 0 && "$TRUFFLE_INSTALL" -eq 0 && "$GITLEAKS_FINDINGS" != UNKNOWN && "$TRUFFLE_FINDINGS" != UNKNOWN ]]; then
+            if [[ "$GITLEAKS_FINDINGS" -eq 0 && "$TRUFFLE_FINDINGS" -eq 0 ]]; then
+              STATUS=PASS
+              SECRET_SCAN=PASS
+              DELETE_AUTH=YES
+            else
+              STATUS=FAIL
+              SECRET_SCAN=LEAKS_FOUND
+            fi
+          fi
+
+          {
+            echo "GATE_A_STATUS: $STATUS"
+            echo "ALL_REFS_SECRET_SCAN: $SECRET_SCAN"
+            echo "GIT_FSCK_EXIT_CODE: $FSCK_EXIT"
+            echo "GITLEAKS_INSTALL_EXIT_CODE: $GITLEAKS_INSTALL"
+            echo "GITLEAKS_EXIT_CODE: $GITLEAKS_EXIT"
+            echo "GITLEAKS_FINDINGS: $GITLEAKS_FINDINGS"
+            echo "TRUFFLEHOG_INSTALL_EXIT_CODE: $TRUFFLE_INSTALL"
+            echo "TRUFFLEHOG_EXIT_CODE: $TRUFFLE_EXIT"
+            echo "TRUFFLEHOG_FINDINGS: $TRUFFLE_FINDINGS"
+            echo "TRUFFLEHOG_VERIFIED_FINDINGS: $TRUFFLE_VERIFIED"
+            echo "REMOTE_DELETE_AUTHORIZED: $DELETE_AUTH"
+            echo
+            echo "BRANCH AUDIT:"
+            cat "$REPORT/branch_topology.tsv"
+          } > "$REPORT/GATE_A_RECEIPT.txt"
+
+          cat "$REPORT/GATE_A_RECEIPT.txt"
+
+      - name: Upload sanitized Gate A receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate-a-forensic-receipt
+          path: gate_a_receipt/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Enforce forensic verdict
+        if: always()
+        shell: bash
+        run: |
+          test -f gate_a_receipt/GATE_A_RECEIPT.txt
+          cat gate_a_receipt/GATE_A_RECEIPT.txt
+          grep -q '^GATE_A_STATUS: PASS$' gate_a_receipt/GATE_A_RECEIPT.txt
